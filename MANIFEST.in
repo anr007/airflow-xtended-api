@@ -1,0 +1,6 @@
+include README.md LICENSE
+recursive-include airflow_xtended_api/ui/static *
+recursive-include airflow_xtended_api/ui/templates *
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo

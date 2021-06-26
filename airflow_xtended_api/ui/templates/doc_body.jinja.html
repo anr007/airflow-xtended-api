@@ -1,0 +1,202 @@
+{% block navbar %}
+<header class="top" role="header">
+    {% include 'appbuilder/navbar.html' %}
+</header>
+{% endblock %}
+
+<div class="main_container">
+    <h1>Airflow Xtended API Plugin </h1>
+
+    <h2>Documentation</h2>
+    <ul>
+        <li><a target="_blank" href="https://github.com/anr007/airflow-xtended-api">Airflow Xtended API Plugin</a></li>
+    </ul>
+
+    <h2>Versions</h2>
+    <ul>
+        <li>Airflow Version: {{airflow_version}}</li>
+        <li>Airflow Xtended API Plugin Version: {{plugin_version}}</li>
+    </ul>
+
+    <div style="display: flex; align-items: center;">
+        <h2>DAGs</h2>
+        <button type="button" class="btn btn-default btn-xs" data-toggle="collapse" data-target="#dags"
+            aria-expanded="false" aria-controls="dags" style="margin-top: 13px;margin-left: 7px;">
+            <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <div class="collapse" id="dags">
+        <div>
+            <table class="rounded_table">
+                <tr>
+                    <th>DAG ID</th>
+                    <th>Is Active</th>
+                </tr>
+                {% if dags|length > 0 %}
+                {% for dag in dags %}
+                <tr>
+                    <td>{{dag.dag_id}}</td>
+                    <td>{{dag.is_active}}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td class="button_row" colspan="2">
+                        <em><strong>Dags not found!!</strong></em>
+                    </td>
+                </tr>
+                {% endif %}
+
+            </table>
+        </div>
+    </div>
+
+    <h2>API Directory</h2>
+    <p>Click on one of the endpoint name below to jump to the API form</p>
+    <ul>
+        {% for api_metadata in apis_metadata %}
+        <li><a href="#{{api_metadata.name}}">{{api_metadata.name}}</a></li>
+        {% endfor %}
+    </ul>
+
+    <!--Listing the metadata and information of all the APIs-->
+    <h2>APIs</h2>
+    {% for api_metadata in apis_metadata %}
+    <div>
+        <h3><a name="{{api_metadata.name}}">{{api_metadata.name}}</a></h3>
+        <h4>Description:</h4>
+        <ul>
+            <li>
+                {{api_metadata.description}}.
+            </li>
+        </ul>
+        <h4>HTTP Method:</h4>
+        <ul>
+            <li>
+                <strong>{{api_metadata.http_method}}</strong>
+            </li>
+        </ul>
+        <h4>Endpoint:</h4>
+        <ul>
+            <li>
+                <em>
+                    {{airflow_webserver_base_url}}{{api_endpoint}}{{api_metadata.name}}
+                    {%- if api_metadata.http_method != 'POST' -%}
+                    {%- for argument in api_metadata.arguments -%}
+                    {%- if loop.index0 == 0 -%}
+                    ?{{argument.name}}
+                    {%- else -%}
+                    &{{argument.name}}
+                    {%- endif -%}
+                    {%- if argument.form_input_type != 'checkbox' -%}
+                    =value
+                    {%- endif -%}
+                    {%- endfor -%}
+                    {%- endif -%}
+                </em>
+            </li>
+        </ul>
+
+        {% if api_metadata.form_enctype %}
+        <h4>Content-Encoding:</h4>
+        <ul>
+            <li>{{api_metadata.form_enctype}}</li>
+        </ul>
+        {% endif %}
+
+        <h4>Arguments:</h4>
+        <div>
+            <form method="{{api_metadata.http_method}}" target="_blank" action="{{api_endpoint}}{{api_metadata.name}}"
+                enctype="{{ api_metadata.form_enctype if api_metadata.form_enctype else 'application/x-www-form-urlencoded' }}"
+                onsubmit="return disableEmptyFields(this)">
+
+                <table style="width: auto;" class="rounded_table">
+                    <thead>
+                        <tr>
+                            <th>Argument Name</th>
+                            <th>Value</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if api_metadata.arguments|length > 0 or api_metadata.post_arguments|length > 0 %}
+
+                        {% for argument in api_metadata.arguments %}
+                        <tr>
+                            <td>
+                                <strong>{{argument.name}}</strong>
+                            </td>
+                            {% if argument.form_input_type == "text" %}
+                            <td>
+                                <input type="{{argument.form_input_type}}" class="form-control" name="{{argument.name}}"
+                                    placeholder="{{argument.name}}" />
+                            </td>
+                            {% elif argument.form_input_type == "textarea" %}
+                            <td>
+                                <textarea class="form-control" rows="5" name="{{argument.name}}"></textarea>
+                            </td>
+                            {% else %}
+                            <td>
+                                <input type="{{argument.form_input_type}}" name="{{argument.name}}" />
+                            </td>
+                            {% endif %}
+                            <td>{{argument.required}}</td>
+                            <td>{{argument.description}}</td>
+                        </tr>
+                        {% endfor %}
+
+                        {% for argument in api_metadata.post_arguments %}
+                        <tr>
+                            <td>
+                                <strong>{{argument.name}}</strong>
+                            </td>
+                            {% if argument.form_input_type == "text" %}
+                            <td>
+                                <input type="{{argument.form_input_type}}" class="form-control" name="{{argument.name}}"
+                                    placeholder="{{argument.name}}" />
+                            </td>
+                            {% elif argument.form_input_type == "textarea" %}
+                            <td>
+                                <textarea class="form-control" rows="5" name="{{argument.name}}"></textarea>
+                            </td>
+                            {% else %}
+                            <td>
+                                <input type="{{argument.form_input_type}}" name="{{argument.name}}" />
+                            </td>
+                            {% endif %}
+                            <td>{{argument.required}}</td>
+                            <td>{{argument.description}}</td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td class="button_row" colspan="4">
+                                <em><strong>No Arguments</strong></em>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if api_metadata.footnotes and api_metadata.footnotes.strip() != '' %}
+                        <tr>
+                            <td class="button_row" colspan="4">
+                                <strong>{{api_metadata.footnotes}}</strong>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="button_row" colspan="4">
+                                <input type="submit" class="btn btn-primary" value="Try it!" />
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </form>
+        </div>
+    </div>
+    <br />
+    {% endfor %}
+    <br />
+</div>

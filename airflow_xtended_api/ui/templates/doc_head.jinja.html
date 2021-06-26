@@ -1,0 +1,11 @@
+{% for filename in [
+'css/main.css'
+] -%}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename=static_base_route +'/'+ filename) }}" />
+{% endfor %}
+
+{% for filename in [
+'js/main.js'
+] -%}
+<script src="{{ url_for('static', filename=static_base_route +'/'+ filename) }}"></script>
+{% endfor %}
