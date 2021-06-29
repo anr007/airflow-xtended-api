@@ -15,6 +15,12 @@ Apache Airflow plugin that exposes xtended secure API endpoints similar to the o
 python3 -m pip install airflow-xtended-api
 ```
 
+## Screenshots
+
+![screen1](https://raw.githubusercontent.com/anr007/airflow-xtended-api/main/grabs/screen1.jpg)
+![screen2](https://raw.githubusercontent.com/anr007/airflow-xtended-api/main/grabs/screen2.jpg)
+![screen3](https://raw.githubusercontent.com/anr007/airflow-xtended-api/main/grabs/screen3.jpg)
+
 ## Authentication
 
 Airflow Xtended API plugin uses the same auth mechanism as [Airflow API (Stable) (1.0.0)](https://airflow.apache.org/docs/apache-airflow/stable/stable-rest-api-ref.html#section/Trying-the-API). So, by default APIs exposed via this plugin respect the auth mechanism used by your Airflow webserver and also complies with the existing RBAC policies. Note that you will need to pass credentials data as part of the request. Here is a snippet from the official docs when basic authorization is used:
