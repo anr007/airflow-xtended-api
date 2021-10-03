@@ -1,4 +1,4 @@
-include README.md LICENSE
+include README.md LICENSE BUILD.md
 recursive-include airflow_xtended_api/ui/static *
 recursive-include airflow_xtended_api/ui/templates *
 recursive-exclude * __pycache__

@@ -15,6 +15,10 @@ Apache Airflow plugin that exposes xtended secure API endpoints similar to the o
 python3 -m pip install airflow-xtended-api
 ```
 
+## Build from source
+
+Build a custom version of this plugin by following the instructions in this [doc](BUILD.md)
+
 ## Screenshots
 
 ![screen1](https://raw.githubusercontent.com/anr007/airflow-xtended-api/main/grabs/screen1.jpg)
