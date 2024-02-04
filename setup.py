@@ -15,7 +15,7 @@ CONFIG = HOME / PLUGIN_NAME / "config.py"
 
 def get_requirements():
     return [
-        "apache-airflow>=2.1.0",
+        "apache-airflow>=2.8.0",
         "boto3>=1.17.97",
         "pymongo>=3.11.4",
         "requests>=2.25.1",
