@@ -3,11 +3,9 @@ import os
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
 from airflow.www.app import csrf
 from airflow.models import DagModel
-from airflow import settings
-from airflow.api.common.experimental import delete_dag as exp_delete_dag
+from airflow.api.common import delete_dag
 
 from airflow_xtended_api.api.app import blueprint
 import airflow_xtended_api.utils as utils
@@ -26,7 +24,7 @@ ERR = "error_message"
 
 @blueprint.route("/delete_dag", methods=["GET"])
 @csrf.exempt
-@security.requires_access([(permissions.ACTION_CAN_DELETE, permissions.RESOURCE_DAG)])
+@security.requires_access_dag("DELETE")
 def delete_dag():
     """Custom Function for the delete_dag API.
     Delete dag having the specified dag id and also delete the associated dag file
@@ -104,7 +102,7 @@ def del_dag(dag_id):
         if os.path.exists(dag_full_path):
             os.remove(dag_full_path)
 
-        deleted_dags = exp_delete_dag.delete_dag(dag_id, keep_records_in_log=False)
+        deleted_dags = delete_dag.delete_dag(dag_id, keep_records_in_log=False)
 
         if deleted_dags > 0:
             logging.info("Deleted dag " + dag_id)

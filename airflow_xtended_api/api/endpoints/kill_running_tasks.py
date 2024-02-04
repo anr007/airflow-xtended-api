@@ -2,8 +2,7 @@ import logging
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
-from airflow import settings
+from airflow.utils.session import NEW_SESSION, provide_session
 from airflow.www.app import csrf
 from airflow.models import DagRun
 from airflow.utils.state import State
@@ -17,13 +16,9 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/kill_running_tasks", methods=["GET"])
 @csrf.exempt
-@security.requires_access(
-    [
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_DAG),
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_TASK_INSTANCE),
-    ]
-)
-def kill_running_tasks():
+@provide_session
+@security.requires_access_dag("GET")
+def kill_running_tasks(session=NEW_SESSION):
     """Stop running the specified task instance and downstream tasks.
     Obtain task_instance from session according to dag_id, run_id and task_id,
     If task_id is not empty, get task_instance with RUNNING or NONE status from dag_run according to task_id,
@@ -57,7 +52,6 @@ def kill_running_tasks():
 
     dagbag = dag_utils.get_dagbag()
 
-    session = settings.Session()
     query = session.query(DagRun)
     dag_run = query.filter(DagRun.dag_id == dag_id, DagRun.run_id == run_id).first()
 

@@ -3,8 +3,7 @@ import json
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
-from airflow import settings
+from airflow.utils.session import NEW_SESSION, provide_session
 from airflow.www.app import csrf
 from airflow.models import DagRun
 from airflow.utils.state import State
@@ -19,13 +18,9 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/run_task_instance", methods=["POST"])
 @csrf.exempt
-@security.requires_access(
-    [
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_DAG),
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_TASK_INSTANCE),
-    ]
-)
-def run_task_instance():
+@provide_session
+@security.requires_access_dag("GET")
+def run_task_instance(session=NEW_SESSION):
     """Run specified tasks, skip the rest
     According to dag_id, run_id get dag_run from session,
     Obtain the task instances that need to be run according to tasks，
@@ -78,8 +73,6 @@ def run_task_instance():
 
     logging.info("tasks: " + str(tasks))
     task_list = tasks.split(",")
-
-    session = settings.Session()
 
     if dag_id not in dagbag.dags:
         return ApiResponse.not_found("Dag id {} not found".format(dag_id))

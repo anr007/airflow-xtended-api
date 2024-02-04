@@ -2,7 +2,6 @@ import logging
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
 from airflow.www.app import csrf
 
 from airflow_xtended_api.api.app import blueprint
@@ -13,9 +12,7 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/scan_dags", methods=["GET"])
 @csrf.exempt
-@security.requires_access(
-    [(permissions.ACTION_CAN_READ, permissions.RESOURCE_PERMISSION)]
-)
+@security.requires_access_dag("GET")
 def scan_dags():
     """Custom Function for the scan_dags API.
     Airflow 2.x can run multiple schedulers concurrently in an active / active model.

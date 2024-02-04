@@ -1,8 +1,7 @@
 import logging
 import os
 
-from airflow.www import auth
-from airflow.security import permissions
+from airflow.www.auth import has_access_view
 from flask_appbuilder import (
     expose as app_builder_expose,
     BaseView as AppBuilderBaseView,
@@ -12,9 +11,6 @@ import airflow_xtended_api.utils as utils
 import airflow_xtended_api.api.dag_utils as dag_utils
 from airflow_xtended_api.ui.docs import api_metadata
 from airflow_xtended_api.config import VIEW_BASE_URL, VIEW_BASE_ROUTE
-
-
-required_permissions = [(permissions.ACTION_CAN_READ, permissions.RESOURCE_WEBSITE)]
 
 
 def get_route_base():
@@ -28,7 +24,7 @@ class XtendedApiView(AppBuilderBaseView):
 
     # '/' Endpoint where the Admin page is which allows you to view the APIs available and trigger them
     @app_builder_expose("/")
-    @auth.has_access(required_permissions)
+    @has_access_view()
     def list(self):
 
         return self.render_template(

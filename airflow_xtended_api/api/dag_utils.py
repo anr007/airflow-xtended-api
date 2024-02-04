@@ -6,7 +6,8 @@ from pathlib import Path
 from airflow import settings
 from airflow.configuration import conf
 from airflow.models import DagBag, DagModel
-from airflow.jobs.scheduler_job import SchedulerJob
+from airflow.jobs.scheduler_job_runner import SchedulerJobRunner
+from airflow.jobs.job import Job, run_job
 
 from airflow_xtended_api.config import VALID_DAG_FILE_EXT
 import airflow_xtended_api.utils as utils
@@ -62,10 +63,10 @@ def create_dag_file_from_source_string(file_name, source_text, overwrite=False):
 
 
 def scan_dags_job():
-    scheduler_job = SchedulerJob(num_times_parse_dags=1)
-    scheduler_job.heartrate = 0
-    scheduler_job.run()
     try:
+        scheduler_job = SchedulerJobRunner(job=Job(), num_times_parse_dags=1)
+        scheduler_job.heartrate = 0
+        run_job(job=scheduler_job.job, execute_callable=scheduler_job._execute)
         scheduler_job.kill()
     except Exception:
         logging.info("Rescan Complete: Killed Job")

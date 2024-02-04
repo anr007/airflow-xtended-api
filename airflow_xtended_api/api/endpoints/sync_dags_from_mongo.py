@@ -2,7 +2,6 @@ import logging
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
 from airflow.www.app import csrf
 
 from airflow_xtended_api.api.app import blueprint
@@ -12,15 +11,11 @@ import airflow_xtended_api.api.dag_utils as dag_utils
 from airflow_xtended_api.api.response import ApiResponse
 from airflow_xtended_api.exceptions import MongoClientError, OSFileHandlingError
 
+
 # decorator precedence matters... route should always be first
 @blueprint.route("/mongo_sync", methods=["POST"])
 @csrf.exempt
-@security.requires_access(
-    [
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_DAG),
-        (permissions.ACTION_CAN_DELETE, permissions.RESOURCE_DAG),
-    ]
-)
+@security.requires_access_dag("PUT")
 def sync_dags_from_mongo():
     """Custom Function for the mongo_sync API
     Get serialized DAG code from mongo db and create local DAG files using the same.

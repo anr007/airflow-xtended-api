@@ -2,8 +2,7 @@ import logging
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
-from airflow import settings
+from airflow.utils.session import NEW_SESSION, provide_session
 from airflow.www.app import csrf
 from airflow.models import DagRun
 from airflow.utils.state import State
@@ -18,13 +17,9 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/skip_task_instance", methods=["GET"])
 @csrf.exempt
-@security.requires_access(
-    [
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_DAG),
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_TASK_INSTANCE),
-    ]
-)
-def skip_task_instance():
+@provide_session
+@security.requires_access_dag("GET")
+def skip_task_instance(session=NEW_SESSION):
     """Skip the specified task instance and downstream tasks.
     Obtain task instance from session according to dag_id, run_id and task_id,
     define the state of this task instance as SKIPPED.
@@ -55,7 +50,6 @@ def skip_task_instance():
             "The DAG ID '" + str(dag_id) + "' does not exist"
         )
 
-    session = settings.Session()
     query = session.query(DagRun)
     dag_run = query.filter(DagRun.dag_id == dag_id, DagRun.run_id == run_id).first()
 

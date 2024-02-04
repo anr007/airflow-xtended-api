@@ -4,8 +4,7 @@ import socket
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
-from airflow import settings
+from airflow.utils.session import NEW_SESSION, provide_session
 from airflow.www.app import csrf
 from airflow.models import DagModel
 
@@ -19,8 +18,9 @@ _hostname = socket.gethostname()
 
 @blueprint.route("/deploy_dag", methods=["POST"])
 @csrf.exempt
-@security.requires_access([(permissions.ACTION_CAN_CREATE, permissions.RESOURCE_DAG)])
-def deploy_dag():
+@provide_session
+@security.requires_access_dag("PUT")
+def deploy_dag(session=NEW_SESSION):
     """Custom Function for the deploy_dag API
     Upload dag file，and refresh dag to session
 
@@ -107,7 +107,6 @@ def deploy_dag():
     # Refresh dag into session
     dagbag = dag_utils.get_dagbag()
     dag = dagbag.get_dag(dag_id)
-    session = settings.Session()
     dag.sync_to_db(session=session)
     dag_model = session.query(DagModel).filter(DagModel.dag_id == dag_id).first()
     logging.info("dag_model:" + str(dag_model))
@@ -119,9 +118,11 @@ def deploy_dag():
     return ApiResponse.success({"message": f"DAG File [{dag_file}] has been uploaded"})
 
 
-@csrf.exempt
 @blueprint.route("/deploy_dag", methods=["GET"])
-def download_and_deploy_dag():
+@csrf.exempt
+@provide_session
+@security.requires_access_dag("PUT")
+def download_and_deploy_dag(session=NEW_SESSION):
     """Custom Function for the deploy_dag API
     Upload dag file，and refresh dag to session
 
@@ -195,7 +196,6 @@ def download_and_deploy_dag():
     # Refresh dag into session
     dagbag = dag_utils.get_dagbag()
     dag = dagbag.get_dag(dag_id)
-    session = settings.Session()
     dag.sync_to_db(session=session)
     dag_model = session.query(DagModel).filter(DagModel.dag_id == dag_id).first()
     logging.info("dag_model:" + str(dag_model))

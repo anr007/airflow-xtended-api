@@ -1,6 +1,6 @@
 # Airflow Xtended API - Plugin
 
-Apache Airflow plugin that exposes xtended secure API endpoints similar to the official [Airflow API (Stable) (1.0.0)](https://airflow.apache.org/docs/apache-airflow/stable/stable-rest-api-ref.html), providing richer capabilities to support more powerful DAG and job management. Apache Airflow version 2.1.0 or higher is necessary.
+Apache Airflow plugin that exposes xtended secure API endpoints similar to the official [Airflow API (Stable) (1.0.0)](https://airflow.apache.org/docs/apache-airflow/stable/stable-rest-api-ref.html), providing richer capabilities to support more powerful DAG and job management. Apache Airflow version 2.8.0 or higher is necessary.
 
 ## Requirements
 

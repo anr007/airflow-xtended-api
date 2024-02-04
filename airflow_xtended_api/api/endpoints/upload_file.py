@@ -3,9 +3,7 @@ import os
 import socket
 
 from flask import request
-from airflow import settings
 from airflow.api_connexion import security
-from airflow.security import permissions
 from airflow.www.app import csrf
 
 from airflow_xtended_api.api.app import blueprint
@@ -16,7 +14,7 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/upload_file", methods=["POST"])
 @csrf.exempt
-@security.requires_access([])
+@security.requires_access_dag("PUT")
 def upload_file():
     """Custom Function for the upload_file API.
     Upload files to the specified path.

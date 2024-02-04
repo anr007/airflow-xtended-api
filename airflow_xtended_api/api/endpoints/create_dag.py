@@ -2,8 +2,8 @@ import logging
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
-from airflow import settings
+from airflow.utils.session import NEW_SESSION, provide_session
+from airflow.auth.managers.models.resource_details import DagAccessEntity
 from airflow.www.app import csrf
 from airflow.models import DagModel
 
@@ -16,8 +16,9 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/create_dag", methods=["POST"])
 @csrf.exempt
-@security.requires_access([(permissions.ACTION_CAN_CREATE, permissions.RESOURCE_DAG)])
-def create_dag():
+@provide_session
+@security.requires_access_dag("PUT")
+def create_dag(session=NEW_SESSION):
     """Custom Function for the create_dag API
     Create a dag file from the provided source，and refresh dag to session
 
@@ -76,7 +77,6 @@ def create_dag():
     # Refresh dag into session
     dagbag = dag_utils.get_dagbag()
     dag = dagbag.get_dag(dag_id)
-    session = settings.Session()
     dag.sync_to_db(session=session)
     dag_model = session.query(DagModel).filter(DagModel.dag_id == dag_id).first()
     logging.info("dag_model:" + str(dag_model))

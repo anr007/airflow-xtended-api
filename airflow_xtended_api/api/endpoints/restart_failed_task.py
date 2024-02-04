@@ -1,9 +1,8 @@
 import logging
 
 from flask import request
-from airflow import settings
 from airflow.api_connexion import security
-from airflow.security import permissions
+from airflow.utils.session import NEW_SESSION, provide_session
 from airflow.utils.state import State
 from airflow.www.app import csrf
 from airflow.models import DagRun, DAG
@@ -16,13 +15,9 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/restart_failed_task", methods=["GET"])
 @csrf.exempt
-@security.requires_access(
-    [
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_DAG),
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_TASK_INSTANCE),
-    ]
-)
-def restart_failed_task():
+@provide_session
+@security.requires_access_dag("GET")
+def restart_failed_task(session=NEW_SESSION):
     """Restart the failed task in the specified dag run.
     According to dag_id, run_id get dag_run from session,
     query task_instances that status is FAILED in dag_run,
@@ -52,7 +47,6 @@ def restart_failed_task():
 
     dagbag = dag_utils.get_dagbag()
 
-    session = settings.Session()
     query = session.query(DagRun)
     dag_run = query.filter(DagRun.dag_id == dag_id, DagRun.run_id == run_id).first()
 

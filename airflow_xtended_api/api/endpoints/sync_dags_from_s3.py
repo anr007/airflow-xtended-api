@@ -2,7 +2,6 @@ import logging
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
 from airflow.www.app import csrf
 
 from airflow_xtended_api.api.app import blueprint
@@ -21,12 +20,7 @@ from airflow_xtended_api.exceptions import (
 # decorator precedence matters... route should always be first
 @blueprint.route("/s3_sync", methods=["POST"])
 @csrf.exempt
-@security.requires_access(
-    [
-        (permissions.ACTION_CAN_READ, permissions.RESOURCE_DAG),
-        (permissions.ACTION_CAN_DELETE, permissions.RESOURCE_DAG),
-    ]
-)
+@security.requires_access_dag("PUT")
 def sync_dags_from_s3():
     """Custom Function for the s3_sync API
     Sync DAG files from a S3 compatible storage backend.

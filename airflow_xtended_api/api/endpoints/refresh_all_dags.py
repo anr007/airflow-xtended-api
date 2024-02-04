@@ -1,8 +1,7 @@
 import logging
 
-from airflow import settings
 from airflow.api_connexion import security
-from airflow.security import permissions
+from airflow.utils.session import NEW_SESSION, provide_session
 from airflow.www.app import csrf
 from airflow.models import DagModel
 from airflow.utils import timezone
@@ -14,14 +13,14 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/refresh_all_dags", methods=["GET"])
 @csrf.exempt
-@security.requires_access([(permissions.ACTION_CAN_READ, permissions.RESOURCE_DAG)])
-def refresh_all_dags():
+@provide_session
+@security.requires_access_dag("GET")
+def refresh_all_dags(session=NEW_SESSION):
     """Custom Function for the refresh_all_dags API.
     Refresh all dags.
     """
     logging.info("Executing custom 'refresh_all_dags' function")
     try:
-        session = settings.Session()
         orm_dag_list = session.query(DagModel).all()
         for orm_dag in orm_dag_list:
             if orm_dag:

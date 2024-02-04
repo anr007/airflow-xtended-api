@@ -2,7 +2,6 @@ import logging
 
 from flask import request
 from airflow.api_connexion import security
-from airflow.security import permissions
 from airflow.www.app import csrf
 
 from airflow_xtended_api.api.app import blueprint
@@ -13,7 +12,7 @@ from airflow_xtended_api.api.response import ApiResponse
 
 @blueprint.route("/purge_dags", methods=["GET"])
 @csrf.exempt
-@security.requires_access([(permissions.ACTION_CAN_DELETE, permissions.RESOURCE_DAG)])
+@security.requires_access_dag("DELETE")
 def purge_dags():
     """Custom Function for the purge_dags API
     Delete all files in the DAG folder
